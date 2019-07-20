@@ -17,14 +17,14 @@ ActiveRecord::Schema.define(version: 2019_07_20_084406) do
   enable_extension "plpgsql"
 
   create_table "readings", force: :cascade do |t|
-    t.bigint "thermostats_id"
-    t.integer "tracking_number"
-    t.float "temperature"
-    t.float "humidity"
-    t.float "battery_charge"
+    t.bigint "thermostat_id", null: false
+    t.integer "tracking_number", null: false
+    t.float "temperature", null: false
+    t.float "humidity", null: false
+    t.float "battery_charge", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["thermostats_id"], name: "index_readings_on_thermostats_id"
+    t.index ["thermostat_id"], name: "index_readings_on_thermostat_id"
   end
 
   create_table "thermostats", force: :cascade do |t|
@@ -34,4 +34,5 @@ ActiveRecord::Schema.define(version: 2019_07_20_084406) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "readings", "thermostats"
 end
