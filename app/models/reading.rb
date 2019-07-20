@@ -14,8 +14,16 @@
 
 class Reading < ApplicationRecord
   belongs_to :thermostat
-  validates_presence_of :tracking_number
   validates_presence_of :temperature
   validates_presence_of :humidity
   validates_presence_of :battery_charge
+
+  before_create :set_tracking_number
+
+  def set_tracking_number
+    max = self.thermostat.readings.maximum(:tracking_number)
+    max = 1 if max.blank?
+
+    self.tracking_number = max
+  end
 end
