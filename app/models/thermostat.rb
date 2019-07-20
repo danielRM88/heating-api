@@ -10,4 +10,7 @@
 #
 
 class Thermostat < ApplicationRecord
+  has_many :readings, dependent: :destroy
+  validates_presence_of :household_token
+  validates_presence_of :location
 end

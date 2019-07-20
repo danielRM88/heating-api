@@ -13,4 +13,9 @@
 #
 
 class Reading < ApplicationRecord
+  belongs_to :thermostat
+  validates_presence_of :tracking_number
+  validates_presence_of :temperature
+  validates_presence_of :humidity
+  validates_presence_of :battery_charge
 end
