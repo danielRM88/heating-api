@@ -13,17 +13,42 @@
 #
 
 class Reading < ApplicationRecord
+  @@lock = Mutex.new
+
   belongs_to :thermostat
+  validates_presence_of :tracking_number
   validates_presence_of :temperature
   validates_presence_of :humidity
   validates_presence_of :battery_charge
 
-  before_create :set_tracking_number
+  validate :uniqueness_of_track_no
 
-  def set_tracking_number
-    max = self.thermostat.readings.maximum(:tracking_number)
-    max = 1 if max.blank?
+  scope :find_all_readings_of_household, -> (token) { 
+    Reading.joins(:thermostat).where(thermostats: {household_token: token})
+  }
 
-    self.tracking_number = max
+  scope :find_by_track_no_and_household, -> (track_no, token) {
+    joins(:thermostat).where(tracking_number: track_no)
+    .where(thermostats: { household_token: token })
+  }
+
+  def uniqueness_of_track_no
+    dup = Reading.find_by_track_no_and_household(self.tracking_number, 
+        self.thermostat.household_token).count > 0
+
+    if dup
+      self.errors.add(:tracking_number, "must be unique by household")
+    end
+  end
+
+  def self.generate_tracking_number household_token
+    max = nil
+    @@lock.synchronize do
+      readings = Reading.find_all_readings_of_household(household_token)
+      max = readings.maximum(:tracking_number).to_i
+      max += 1
+    end
+
+    max
   end
 end

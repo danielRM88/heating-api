@@ -11,11 +11,18 @@ class ReadingsController < ApplicationController
   end
 
   def create
-    # TODO send creation to the background
+    track_no = Reading.generate_tracking_number @thermostat.household_token
     reading = Reading.new reading_params
-    reading.thermostat = @thermostat
+    reading.tracking_number = track_no
 
-    if reading.save
+    if reading.valid?
+      ReadingCreationWorker.perform_async(
+        reading.thermostat_id,
+        reading.temperature,
+        reading.humidity,
+        reading.battery_charge,
+        track_no
+      )
       render json: reading, status: :created
     else
       render json: reading.errors, status: :unprocessable_entity
@@ -24,7 +31,7 @@ class ReadingsController < ApplicationController
 
 private
   def reading_params
-    params.permit(:temperature, :humidity, :battery_charge)
+    params.permit(:thermostat_id, :temperature, :humidity, :battery_charge)
   end
 
   def set_thermostat

@@ -6,6 +6,19 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: "12345678"
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  memcached:
+    image: memcached
+  sidekiq:
+    build: .
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    command: bundle exec sidekiq
   web:
     build: .
     command: bundle exec rails s -p 4000 -b '0.0.0.0'
