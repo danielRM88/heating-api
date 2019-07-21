@@ -3,14 +3,14 @@ class ThermostatsController < ApplicationController
 
   def stats
     temp_avg = @thermostat.readings.average(:temperature)
-    temp_max = 0
-    temp_min = 0
-    hum_avg = 0
-    hum_max = 0
-    hum_min = 0
-    bc_avg = 0
-    bc_max = 0
-    bc_min = 0
+    temp_max = @thermostat.readings.maximum(:temperature)
+    temp_min = @thermostat.readings.minimum(:temperature)
+    hum_avg = @thermostat.readings.average(:humidity)
+    hum_max = @thermostat.readings.maximum(:humidity)
+    hum_min = @thermostat.readings.minimum(:humidity)
+    bc_avg = @thermostat.readings.average(:battery_charge)
+    bc_max = @thermostat.readings.maximum(:battery_charge)
+    bc_min = @thermostat.readings.minimum(:battery_charge)
 
     render json: { 
       temperature: {
